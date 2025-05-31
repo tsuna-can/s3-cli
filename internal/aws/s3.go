@@ -125,6 +125,12 @@ func (c *S3Client) ListObjects(ctx context.Context, bucketName string) ([]string
 // DownloadObject は指定したバケット・キーのオブジェクトをローカルにダウンロードします
 func (c *S3Client) DownloadObject(ctx context.Context, bucketName, key, outputDir string) error {
 	outputPath := filepath.Join(outputDir, key)
+
+	// 同名ファイルが既に存在するかチェック
+	if _, err := os.Stat(outputPath); err == nil {
+		return fmt.Errorf("ファイルが既に存在します: %s", outputPath)
+	}
+
 	// ディレクトリが存在しない場合は作成
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
