@@ -20,12 +20,8 @@ type S3Client struct {
 	endpointURL string
 }
 
-// 将来的には環境変数から取得するためのエンドポイントURL
-// 現時点ではハードコードで定義
-const defaultEndpointURL = "http://localhost:4566"
-
 // NewS3Client creates a new S3 client using AWS configuration from ~/.aws/config
-func NewS3Client(profile string) (*S3Client, error) {
+func NewS3Client(profile string, endpointURL string) (*S3Client, error) {
 	var loadOptions []func(*config.LoadOptions) error
 
 	// プロファイルが指定されている場合は使用
@@ -34,11 +30,10 @@ func NewS3Client(profile string) (*S3Client, error) {
 	}
 
 	// カスタムエンドポイントリゾルバーを設定
-	// 将来的にはここを環境変数から取得するように変更予定
 	loadOptions = append(loadOptions, config.WithEndpointResolverWithOptions(
 		aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 			return aws.Endpoint{
-				URL:               defaultEndpointURL,
+				URL:               endpointURL,
 				HostnameImmutable: true,
 			}, nil
 		}),
@@ -71,7 +66,7 @@ func NewS3Client(profile string) (*S3Client, error) {
 		client:      client,
 		region:      region,
 		profile:     usedProfile,
-		endpointURL: defaultEndpointURL,
+		endpointURL: endpointURL,
 	}, nil
 }
 

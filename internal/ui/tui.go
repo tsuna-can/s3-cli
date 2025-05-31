@@ -20,12 +20,13 @@ type UIModel struct {
 	filterInput textinput.Model
 	outputDir   string
 	profile     string
+	endpointURL string
 	err         error
 	msg         string
 }
 
 // StartUI initializes and starts the terminal UI
-func StartUI(outputDir string, profile string, debugMode bool) {
+func StartUI(outputDir string, profile string, endpointURL string, debugMode bool) {
 	// デバッグログを設定
 	logFile, err := os.Create("/tmp/s3-cli-debug.log")
 	if err == nil {
@@ -52,6 +53,7 @@ func StartUI(outputDir string, profile string, debugMode bool) {
 		filterInput: filterInput,
 		outputDir:   outputDir,
 		profile:     profile,
+		endpointURL: endpointURL,
 	}
 
 	p := tea.NewProgram(initialModel)
@@ -69,7 +71,7 @@ func (m UIModel) Init() tea.Cmd {
 func (m *UIModel) initS3Client() tea.Cmd {
 	return func() tea.Msg {
 		log.Println("S3クライアント初期化開始")
-		client, err := aws.NewS3Client(m.profile)
+		client, err := aws.NewS3Client(m.profile, m.endpointURL)
 		if err != nil {
 			log.Printf("S3クライアント初期化エラー: %v\n", err)
 			return errorMsg{err}
