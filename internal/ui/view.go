@@ -19,19 +19,17 @@ func (m UIModel) View() string {
 
 // renderBucketView はバケット一覧ビューを描画します
 func (m UIModel) renderBucketView() string {
-	region := "不明"
 	profile := "default"
 	endpoint := "AWS本番環境"
 	if m.s3Client != nil {
-		region = m.s3Client.GetRegion()
 		profile = m.s3Client.GetProfile()
 		if m.s3Client.GetEndpointURL() != "" {
 			endpoint = m.s3Client.GetEndpointURL()
 		}
 	}
 
-	view := fmt.Sprintf("S3 バケット一覧 (プロファイル: %s, リージョン: %s)\nエンドポイント: %s\n\n",
-		profile, region, endpoint)
+	view := fmt.Sprintf("Profile: %s, Endpoint url: %s\n\n",
+		profile, endpoint)
 	view += m.filterInput.View() + "\n\n"
 
 	if len(m.bucketModel.FilteredBuckets) == 0 {
@@ -52,7 +50,7 @@ func (m UIModel) renderBucketView() string {
 
 // renderObjectView はオブジェクト一覧ビューを描画します
 func (m UIModel) renderObjectView() string {
-	view := fmt.Sprintf("「%s」内のオブジェクト\n\n", m.objectModel.BucketName)
+	view := fmt.Sprintf("%s内のオブジェクト\n\n", m.objectModel.BucketName)
 	view += m.filterInput.View() + "\n\n"
 
 	if len(m.objectModel.FilteredObjects) == 0 {

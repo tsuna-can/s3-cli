@@ -44,6 +44,7 @@ func StartUI(outputDir string, profile string, debugMode bool) {
 
 	filterInput := textinput.New()
 	filterInput.Placeholder = "Filter buckets..."
+	filterInput.Prompt = "🔍 "
 	filterInput.Focus()
 
 	initialModel := UIModel{
