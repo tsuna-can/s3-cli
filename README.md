@@ -2,6 +2,8 @@
 
 An interactive command line interface for browsing and downloading files from AWS S3 buckets.
 
+![s3-cli demo](./demo.gif)
+
 ## Features
 
 - Browse S3 buckets and objects with an intuitive terminal UI
