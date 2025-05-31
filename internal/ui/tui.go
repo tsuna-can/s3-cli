@@ -21,6 +21,7 @@ type UIModel struct {
 	outputDir   string
 	profile     string
 	err         error
+	msg         string
 }
 
 // StartUI initializes and starts the terminal UI
@@ -35,6 +36,11 @@ func StartUI(outputDir string, profile string, debugMode bool) {
 	}
 
 	log.Println("アプリケーション起動")
+
+	// outputDirが空の場合はカレントディレクトリを使う
+	if outputDir == "" {
+		outputDir = "."
+	}
 
 	filterInput := textinput.New()
 	filterInput.Placeholder = "Filter buckets..."

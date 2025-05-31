@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,7 +12,11 @@ import (
 func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		return m.handleKeyMsg(msg)
+		model, cmd := m.handleKeyMsg(msg)
+		if model != nil {
+			return model, cmd
+		}
+		// handleKeyMsgが処理しなかった場合（nilを返した場合）は、以下の処理に進む
 
 	case s3ClientInitMsg:
 		m.s3Client = msg.client
@@ -28,10 +33,17 @@ func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.objectModel.Cursor = 0
 
 	case errorMsg:
-		m.err = msg.err
+		m.err = nil
+		m.msg = fmt.Sprintf("エラー: %v", msg.err)
+
+	case downloadedMsg:
+		m.err = nil
+		m.msg = fmt.Sprintf("ダウンロード完了: %s/%s → %s", msg.bucket, msg.key, msg.outputDir)
+		return m, tea.Quit
 	}
 
 	var cmd tea.Cmd
+	// filterInputの値が変わるたびにapplyFilterが呼ばれ、部分一致で絞り込みされる
 	m.filterInput, cmd = m.filterInput.Update(msg)
 
 	// フィルター変更時に適用
@@ -63,6 +75,12 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.filterInput.Placeholder = "Filter objects..."
 			return m, m.fetchObjects(selectedBucket)
 		}
+		if m.state == "objects" && len(m.objectModel.FilteredObjects) > 0 {
+			selectedObject := m.objectModel.FilteredObjects[m.objectModel.Cursor]
+			bucket := m.objectModel.BucketName
+			outputDir := m.outputDir
+			return m, m.downloadObject(bucket, selectedObject, outputDir)
+		}
 
 	case tea.KeyUp:
 		if m.state == "buckets" {
@@ -76,6 +94,7 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				m.objectModel.Cursor = 0
 			}
 		}
+		return m, nil
 
 	case tea.KeyDown:
 		if m.state == "buckets" {
@@ -89,9 +108,10 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				m.objectModel.Cursor = len(m.objectModel.FilteredObjects) - 1
 			}
 		}
+		return m, nil
 	}
-
-	return m, nil
+	// ここでnil,nilを返すことで、通常の文字入力はfilterInputに渡される
+	return nil, nil
 }
 
 // applyFilter はフィルターを適用します
@@ -132,5 +152,16 @@ func (m UIModel) fetchObjects(bucketName string) tea.Cmd {
 			return errorMsg{err}
 		}
 		return objectsMsg{objects}
+	}
+}
+
+// downloadObject はオブジェクトをダウンロードするCmdを返します
+func (m UIModel) downloadObject(bucket, key, outputDir string) tea.Cmd {
+	return func() tea.Msg {
+		err := m.s3Client.DownloadObject(context.Background(), bucket, key, outputDir)
+		if err != nil {
+			return errorMsg{err}
+		}
+		return downloadedMsg{bucket: bucket, key: key, outputDir: outputDir}
 	}
 }

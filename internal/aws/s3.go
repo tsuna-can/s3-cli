@@ -3,7 +3,9 @@ package aws
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -118,4 +120,31 @@ func (c *S3Client) ListObjects(ctx context.Context, bucketName string) ([]string
 	}
 
 	return objectKeys, nil
+}
+
+// DownloadObject は指定したバケット・キーのオブジェクトをローカルにダウンロードします
+func (c *S3Client) DownloadObject(ctx context.Context, bucketName, key, outputDir string) error {
+	outputPath := filepath.Join(outputDir, key)
+	// ディレクトリが存在しない場合は作成
+	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+		return err
+	}
+
+	outFile, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	resp, err := c.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &bucketName,
+		Key:    &key,
+	})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	_, err = io.Copy(outFile, resp.Body)
+	return err
 }

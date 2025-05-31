@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// filterItems は文字列のスライスをフィルタリングします
+// filterItems は文字列のスライスをフィルタリングします（部分一致・大文字小文字無視）
 func filterItems(items []string, filter string) []string {
 	if filter == "" {
 		return items

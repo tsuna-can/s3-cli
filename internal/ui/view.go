@@ -6,8 +6,8 @@ import (
 
 // View はUIの現在の状態を表示します
 func (m UIModel) View() string {
-	if m.err != nil {
-		return fmt.Sprintf("エラー: %v\n\nCtrl+Cで終了してください。", m.err)
+	if m.msg != "" {
+		return fmt.Sprintf("%s\n\nCtrl+Cで終了してください。", m.msg)
 	}
 
 	if m.state == "buckets" {
@@ -66,7 +66,7 @@ func (m UIModel) renderObjectView() string {
 			view += fmt.Sprintf("%s %s\n", cursor, object)
 		}
 	}
-	view += "\n(↑/↓: 移動, Esc: バケット一覧に戻る, Ctrl+C: 終了)"
+	view += "\n(↑/↓: 移動, Enter: ダウンロード, Esc: バケット一覧に戻る, Ctrl+C: 終了)"
 
 	return view
 }

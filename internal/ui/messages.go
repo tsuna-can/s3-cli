@@ -23,3 +23,10 @@ type objectsMsg struct {
 type errorMsg struct {
 	err error
 }
+
+// downloadedMsg はダウンロード完了メッセージです
+type downloadedMsg struct {
+	bucket    string
+	key       string
+	outputDir string
+}
