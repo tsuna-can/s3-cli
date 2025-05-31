@@ -14,7 +14,7 @@ import (
 // UIModel represents the state for the terminal UI
 type UIModel struct {
 	s3Client    *aws.S3Client
-	state       string // "buckets" or "objects"
+	state       ViewState
 	bucketModel model.BucketListModel
 	objectModel model.ObjectListModel
 	filterInput textinput.Model
@@ -49,7 +49,7 @@ func StartUI(outputDir string, profile string, endpointURL string, debugMode boo
 	filterInput.Focus()
 
 	initialModel := UIModel{
-		state:       "buckets",
+		state:       BucketsView,
 		filterInput: filterInput,
 		outputDir:   outputDir,
 		profile:     profile,

@@ -10,7 +10,7 @@ func (m UIModel) View() string {
 		return fmt.Sprintf("%s\n\nCtrl+Cで終了してください。", m.msg)
 	}
 
-	if m.state == "buckets" {
+	if m.state == BucketsView {
 		return m.renderBucketView()
 	} else {
 		return m.renderObjectView()

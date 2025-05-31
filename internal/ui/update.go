@@ -59,23 +59,23 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 
 	case tea.KeyEsc:
-		if m.state == "objects" {
-			m.state = "buckets"
+		if m.state == ObjectsView { // 文字列比較から定数比較に変更
+			m.state = BucketsView // 文字列からViewState型に変更
 			m.filterInput.Reset()
 			m.filterInput.Placeholder = "Filter buckets..."
 			return m, nil
 		}
 
 	case tea.KeyEnter:
-		if m.state == "buckets" && len(m.bucketModel.FilteredBuckets) > 0 {
+		if m.state == BucketsView && len(m.bucketModel.FilteredBuckets) > 0 { // 文字列比較から定数比較に変更
 			selectedBucket := m.bucketModel.FilteredBuckets[m.bucketModel.Cursor]
-			m.state = "objects"
+			m.state = ObjectsView // 文字列からViewState型に変更
 			m.objectModel.BucketName = selectedBucket
 			m.filterInput.Reset()
 			m.filterInput.Placeholder = "Filter objects..."
 			return m, m.fetchObjects(selectedBucket)
 		}
-		if m.state == "objects" && len(m.objectModel.FilteredObjects) > 0 {
+		if m.state == ObjectsView && len(m.objectModel.FilteredObjects) > 0 {
 			selectedObject := m.objectModel.FilteredObjects[m.objectModel.Cursor]
 			bucket := m.objectModel.BucketName
 			outputDir := m.outputDir
@@ -83,7 +83,7 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.KeyUp:
-		if m.state == "buckets" {
+		if m.state == BucketsView {
 			m.bucketModel.Cursor--
 			if m.bucketModel.Cursor < 0 {
 				m.bucketModel.Cursor = 0
@@ -97,7 +97,7 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyDown:
-		if m.state == "buckets" {
+		if m.state == BucketsView {
 			m.bucketModel.Cursor++
 			if m.bucketModel.Cursor >= len(m.bucketModel.FilteredBuckets) {
 				m.bucketModel.Cursor = len(m.bucketModel.FilteredBuckets) - 1
@@ -116,7 +116,7 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 // applyFilter はフィルターを適用します
 func (m *UIModel) applyFilter() {
-	if m.state == "buckets" {
+	if m.state == BucketsView {
 		filter := strings.ToLower(m.filterInput.Value())
 		m.bucketModel.FilteredBuckets = filterItems(m.bucketModel.Buckets, filter)
 		if len(m.bucketModel.FilteredBuckets) > 0 {
