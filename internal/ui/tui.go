@@ -23,6 +23,8 @@ type UIModel struct {
 	endpointURL string
 	err         error
 	msg         string
+	width       int // ウィンドウ幅
+	height      int // ウィンドウ高さ
 }
 
 // StartUI initializes and starts the terminal UI

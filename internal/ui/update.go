@@ -11,6 +11,12 @@ import (
 // Update はUIイベントを処理し、モデルを更新します
 func (m UIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		// ウィンドウサイズの更新
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
 	case tea.KeyMsg:
 		model, cmd := m.handleKeyMsg(msg)
 		if model != nil {
@@ -59,17 +65,17 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 
 	case tea.KeyEsc:
-		if m.state == ObjectsView { // 文字列比較から定数比較に変更
-			m.state = BucketsView // 文字列からViewState型に変更
+		if m.state == ObjectsView {
+			m.state = BucketsView
 			m.filterInput.Reset()
 			m.filterInput.Placeholder = "Filter buckets..."
 			return m, nil
 		}
 
 	case tea.KeyEnter:
-		if m.state == BucketsView && len(m.bucketModel.FilteredBuckets) > 0 { // 文字列比較から定数比較に変更
+		if m.state == BucketsView && len(m.bucketModel.FilteredBuckets) > 0 {
 			selectedBucket := m.bucketModel.FilteredBuckets[m.bucketModel.Cursor]
-			m.state = ObjectsView // 文字列からViewState型に変更
+			m.state = ObjectsView
 			m.objectModel.BucketName = selectedBucket
 			m.filterInput.Reset()
 			m.filterInput.Placeholder = "Filter objects..."
