@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -123,16 +122,14 @@ func (m UIModel) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // applyFilter はフィルターを適用します
 func (m *UIModel) applyFilter() {
 	if m.state == BucketsView {
-		filter := strings.ToLower(m.filterInput.Value())
-		m.bucketModel.FilteredBuckets = filterItems(m.bucketModel.Buckets, filter)
+		m.bucketModel.FilteredBuckets = filterItems(m.bucketModel.Buckets, m.filterInput.Value())
 		if len(m.bucketModel.FilteredBuckets) > 0 {
 			m.bucketModel.Cursor = min(m.bucketModel.Cursor, len(m.bucketModel.FilteredBuckets)-1)
 		} else {
 			m.bucketModel.Cursor = 0
 		}
 	} else {
-		filter := strings.ToLower(m.filterInput.Value())
-		m.objectModel.FilteredObjects = filterItems(m.objectModel.Objects, filter)
+		m.objectModel.FilteredObjects = filterItems(m.objectModel.Objects, m.filterInput.Value())
 		if len(m.objectModel.FilteredObjects) > 0 {
 			m.objectModel.Cursor = min(m.objectModel.Cursor, len(m.objectModel.FilteredObjects)-1)
 		} else {
